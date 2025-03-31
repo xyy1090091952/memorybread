@@ -12,12 +12,7 @@
 
 ### macOS用户
 1. 双击运行start_app.command文件
-2. 或通过终端运行:
-```bash
-cd /path/to/单词记忆机
-./start_app.command
-```
-3. 要关闭服务器，在终端输入'stop'并按回车
+2. 要关闭服务器，在终端输入'stop'并按回车
 
 
 ## 2. 访问软件
