@@ -11,6 +11,58 @@
             margin: 0 auto;
             padding: 20px;
         }
+        
+        .part-of-speech-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 8px;
+            color: white;
+        }
+        
+        .part-of-speech-tag.动词 {
+            background-color: #4a6baf;
+        }
+        
+        .part-of-speech-tag.名词 {
+            background-color: #5cb85c;
+        }
+        
+        .part-of-speech-tag.形容词 {
+            background-color: #f0ad4e;
+        }
+        
+        .part-of-speech-tag.副词 {
+            background-color: #d9534f;
+        }
+        
+        .part-of-speech-tag.助词 {
+            background-color: #5bc0de;
+        }
+        
+        .part-of-speech-tag.连词 {
+            background-color: #aa66cc;
+        }
+        
+        /* 默认样式 */
+        .part-of-speech-tag {
+            background-color: #6c757d;
+        }
+        
+        /* 新增词性样式示例 */
+        .part-of-speech-tag.形容动词 {
+            background-color: #17a2b8;
+        }
+        
+        .part-of-speech-tag.代词 {
+            background-color: #6f42c1;
+        }
+        
+        .part-of-speech-tag.数词 {
+            background-color: #fd7e14;
+        }
+        
         .question-container {
             margin: 20px 0;
             padding: 20px;
@@ -160,7 +212,7 @@
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">${word.data['词性']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;"><span class="part-of-speech-tag ${word.data['词性']}">${word.data['词性']}</span></td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['例句']}</td>
                         </tr>
                     </tbody>
@@ -255,7 +307,7 @@
             if (type === 'fillBlank') {
                 return {
                     type: 'fillBlank',
-                    prompt: `请写出"${randomWord.data['中文']}"对应的日语假名或汉字是：`,
+                    prompt: `请写出"${randomWord.data['中文']}"<span class="part-of-speech-tag ${randomWord.data['词性']}">${randomWord.data['词性']}</span>对应的日语假名或汉字是：`,
                     answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
                     word: randomWord
                 };
@@ -275,7 +327,7 @@
                 
                 return {
                     type: 'multipleChoice',
-                    prompt: `"${randomWord.data['中文']}"对应的日语假名或汉字是：`,
+                    prompt: `"${randomWord.data['中文']}"<span class="part-of-speech-tag ${randomWord.data['词性']}">${randomWord.data['词性']}</span>对应的日语假名或汉字是：`,
                     options: options,
                     answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
                     word: randomWord
@@ -327,6 +379,13 @@
             let userAnswer;
             if (question.type === 'fillBlank') {
                 userAnswer = document.getElementById('user-answer').value.trim();
+                if (!userAnswer) {
+                    const feedbackDiv = document.createElement('div');
+                    feedbackDiv.className = 'feedback incorrect';
+                    feedbackDiv.textContent = '请输入答案！';
+                    document.querySelector('.question-container').appendChild(feedbackDiv);
+                    return;
+                }
             } else {
                 const selectedOption = document.querySelector('input[name="option"]:checked');
                 userAnswer = selectedOption ? selectedOption.value : null;
@@ -341,7 +400,7 @@
             const feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback';
             
-            if (userAnswer === question.answer || userAnswer === question.word.data['汉字'] || userAnswer === question.word.data['假名']) {
+            if (userAnswer && (userAnswer === question.answer || userAnswer === question.word.data['汉字'] || userAnswer === question.word.data['假名'])) {
                 feedbackDiv.className += ' correct';
                 feedbackDiv.textContent = '正确！';
                 document.getElementById('submit-btn').textContent = 'Enter下一题';
@@ -356,6 +415,7 @@
             feedbackDiv.innerHTML += `<br><br>单词详情：<br>
                 假名: ${question.word.data['假名']}<br>
                 汉字: ${question.word.data['汉字']}<br>
+                词性: <span class="part-of-speech-tag ${question.word.data['词性'].toLowerCase()}">${question.word.data['词性']}</span><br>
                 例句: ${question.word.data['例句']}
             `;
             
@@ -429,7 +489,7 @@
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">${word.data['词性']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;"><span class="part-of-speech-tag ${word.data['词性']}">${word.data['词性']}</span></td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['例句']}</td>
                         `;
                         tbody.appendChild(row);
