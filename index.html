@@ -149,6 +149,7 @@
                         <th style="border: 1px solid #ddd; padding: 8px;">假名</th>
                         <th style="border: 1px solid #ddd; padding: 8px;">汉字</th>
                         <th style="border: 1px solid #ddd; padding: 8px;">中文</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">词性</th>
                         <th style="border: 1px solid #ddd; padding: 8px;">例句</th>
                     </tr>
                 </thead>
@@ -159,6 +160,7 @@
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">${word.data['词性']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['例句']}</td>
                         </tr>
                     </tbody>
@@ -427,6 +429,7 @@
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">${word.data['词性']}</td>
                             <td style="border: 1px solid #ddd; padding: 8px;">${word.data['例句']}</td>
                         `;
                         tbody.appendChild(row);
