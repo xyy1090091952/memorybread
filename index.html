@@ -423,6 +423,12 @@
                 feedbackDiv.textContent = '正确！';
                 document.getElementById('submit-btn').textContent = 'Enter下一题';
                 document.getElementById('submit-btn').style.backgroundColor = '#4CAF50';
+                
+                // 重新绑定点击事件
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.onclick = function() {
+                    document.getElementById('next-btn').click();
+                };
             } else {
                 feedbackDiv.className += ' incorrect';
                 feedbackDiv.textContent = `错误！正确答案是：${question.answer}`;
@@ -453,7 +459,9 @@
             document.getElementById('question-container').style.display = 'block';
             document.getElementById('input-container').style.display = 'none';
             document.getElementById('next-btn').style.display = 'block';
-            document.getElementById('next-btn').textContent = '跳过这个问题';
+            document.getElementById('next-btn').textContent = '跳过这个问题 (⌘+Enter)';
+            document.getElementById('next-btn').style.textAlign = 'center';
+            document.getElementById('next-btn').style.margin = '20px auto';
             document.getElementById('question-type-toggle').style.display = 'block';
             document.getElementById('test-mode-btn').classList.add('active');
             document.getElementById('input-mode-btn').classList.remove('active');
