@@ -33,7 +33,7 @@ MemoryBread 是一个简单而强大的日语单词记忆工具，帮助您更�
 
 ### Windows 版本
 
-1. 下载最新版本：[memorybread_v0.1.6_win.zip](https://github.com/xyy1090091952/memorybread/raw/main/releases/memorybread_v0.1.6_win.zip)
+1. 下载最新版本：[memorybread_v0.1.6_win.zip](https://github.com/xyy1090091952/memorybread/raw/windows_releases/releases/memorybread_v0.1.6_win.zip)
 2. 解压下载的文件
 3. 双击 `start_app.bat` 运行程序
 4. 程序会自动：
