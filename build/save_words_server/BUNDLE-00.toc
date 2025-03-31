@@ -1,3 +1,0 @@
-([('save_words_server',
-   '/Users/bytedance/Documents/trae_code/单词记忆机/dist/save_words_server',
-   'EXECUTABLE')],)
