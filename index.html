@@ -221,10 +221,10 @@
         
     </div>
     <div id="next-btn-container" style="text-align: center; margin-top: 20px;">
-        <button id="next-btn" style="padding: 12px 24px; font-size: 16px;">跳过这个问题</button>
+        <button id="next-btn" style="padding: 12px 24px; font-size: 16px;">跳过这个问题 (⌘+Enter)</button>
     </div>
     <div style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
-        <p>快捷键提示: Enter提交/下一题, 数字键1-4选择选项</p>
+        <p>快捷键提示: Enter提交/下一题, 数字键1-4选择选项, ⌘+Enter跳过问题</p>
         <button id="popup-window-btn" style="position: absolute; top: 20px; right: 20px; padding: 5px 10px; font-size: 12px; background: none; border: 1px solid #007bff; color: #007bff; border-radius: 4px;">在小窗口中打开</button>
     </div>
 
@@ -271,6 +271,19 @@
         document.addEventListener('DOMContentLoaded', () => {
             initApp();
             setupDeleteButtons();
+            
+            // 添加全局键盘事件监听
+            document.addEventListener('keydown', (e) => {
+                // 检测Command+Enter(Mac)或Ctrl+Enter(Windows)
+                const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                const isSkipShortcut = (isMac && e.metaKey && e.key === 'Enter') || 
+                                     (!isMac && e.ctrlKey && e.key === 'Enter');
+                
+                if (isSkipShortcut) {
+                    e.preventDefault();
+                    document.getElementById('next-btn').click();
+                }
+            });
             
             // 初始化答题模式下的课时筛选选项
             loadWords().then(words => {
@@ -389,13 +402,18 @@
             } else {
                 const selectedOption = document.querySelector('input[name="option"]:checked');
                 userAnswer = selectedOption ? selectedOption.value : null;
+                if (!userAnswer) {
+                    const feedbackDiv = document.createElement('div');
+                    feedbackDiv.className = 'feedback incorrect';
+                    feedbackDiv.textContent = '请选择一个选项！';
+                    document.querySelector('.question-container').appendChild(feedbackDiv);
+                    return;
+                }
             }
             
-            // 先清除旧的反馈
-            const oldFeedback = document.querySelector('.feedback');
-            if (oldFeedback) {
-                oldFeedback.remove();
-            }
+            // 清除所有旧的反馈
+            const oldFeedbacks = document.querySelectorAll('.feedback');
+            oldFeedbacks.forEach(feedback => feedback.remove());
             
             const feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback';
@@ -411,11 +429,16 @@
                 document.getElementById('submit-btn').textContent = 'Enter提交';
             }
             
+            // 确保只保留一条反馈信息
+            const existingFeedback = document.querySelector('.question-container .feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
             // 显示单词详细信息
             feedbackDiv.innerHTML += `<br><br>单词详情：<br>
                 假名: ${question.word.data['假名']}<br>
                 汉字: ${question.word.data['汉字']}<br>
-                词性: <span class="part-of-speech-tag ${question.word.data['词性'].toLowerCase()}">${question.word.data['词性']}</span><br>
                 例句: ${question.word.data['例句']}
             `;
             
