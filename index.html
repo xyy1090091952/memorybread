@@ -245,12 +245,22 @@
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
+            min-width: 150px;
+            width: 200px;
+            box-sizing: border-box;
         }
 
         select:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        select:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.7;
+            width: 200px;
         }
 
         /* 表格样式优化 */
@@ -594,20 +604,6 @@
             background-color: var(--light-gray);
         }
 
-        /* 优化选择框 */
-        select {
-            transition: all 0.3s ease;
-        }
-
-        select:hover {
-            border-color: var(--primary-color);
-        }
-
-        select:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
-        }
-
         /* 弹出窗口按钮样式 */
         .popup-btn {
             background-color: transparent;
@@ -625,6 +621,53 @@
             background-color: var(--light-gray);
             transform: none;
             box-shadow: none;
+        }
+
+        /* 优化选择框 */
+        select {
+            transition: all 0.3s ease;
+            min-width: 150px;
+            width: 200px;
+            box-sizing: border-box;
+        }
+
+        select:hover {
+            border-color: var(--primary-color);
+        }
+
+        select:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+        }
+
+        select:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.7;
+            width: 200px;
+        }
+
+        /* 筛选器容器样式 */
+        .filter-container {
+            padding: 8px 12px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-container label {
+            font-weight: 600;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        .filter-container select {
+            flex: 1;
+            min-width: 150px;
+            width: 200px;
         }
     </style>
 </head>
@@ -644,17 +687,23 @@
 
     <section id="question-type-toggle" style="margin: 20px 0;">
         <div style="display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0;">
-            <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center; flex: 1; min-width: 300px;">
-                <label style="font-weight: 600; margin-right: 10px; white-space: nowrap;">题型选择:</label>
-                <select id="question-type" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer; flex: 1;">
+            <div class="filter-container">
+                <label>题型选择:</label>
+                <select id="question-type">
                     <option value="mixed">混合模式</option>
                     <option value="fillBlank">只做填空题</option>
                     <option value="multipleChoice">只做选择题</option>
                 </select>
             </div>
-            <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center; flex: 1; min-width: 300px;">
-                <label style="font-weight: 600; margin-right: 10px; white-space: nowrap;">课程筛选:</label>
-                <select id="quiz-lesson-filter" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer; flex: 1;">
+            <div class="filter-container">
+                <label>词典选择:</label>
+                <select id="quiz-dictionary-filter">
+                    <option value="all">全部词典</option>
+                </select>
+            </div>
+            <div class="filter-container">
+                <label>课程筛选:</label>
+                <select id="quiz-lesson-filter" disabled>
                     <option value="all">全部课程</option>
                 </select>
             </div>
@@ -668,11 +717,19 @@
             <div id="word-list" style="margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="color: var(--secondary-color); font-size: 1.5em;">单词库</h2>
-                    <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center;">
-                        <label style="font-weight: 600; margin-right: 10px;">课时筛选: </label>
-                        <select id="lesson-filter" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer;">
-                            <option value="all">全部课时</option>
-                        </select>
+                    <div style="display: flex; gap: 15px;">
+                        <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center;">
+                            <label style="font-weight: 600; margin-right: 10px;">词典筛选: </label>
+                            <select id="word-list-dictionary-filter" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer;">
+                                <option value="all">全部词典</option>
+                            </select>
+                        </div>
+                        <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center;">
+                            <label style="font-weight: 600; margin-right: 10px;">课程筛选: </label>
+                            <select id="word-list-lesson-filter" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer;">
+                                <option value="all">全部课程</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; border-radius: 12px; box-shadow: var(--shadow);">
@@ -710,152 +767,223 @@
         async function loadWords() {
             try {
                 const response = await fetch('words.json');
-                if (!response.ok) throw new Error('Failed to load words');
+                if (!response.ok) {
+                    console.error('Failed to load words:', response.status, response.statusText);
+                    throw new Error('Failed to load words');
+                }
                 const data = await response.json();
-                // 按lesson字段升序排序后返回
-                return data.sort((a, b) => a.lesson - b.lesson);
+                console.log('Loaded words:', data);
+                
+                // 确保返回的数据格式正确
+                if (!data.words || !Array.isArray(data.words)) {
+                    console.error('Invalid words data format:', data);
+                    return [];
+                }
+                
+                // 验证每个单词的数据结构
+                const validWords = data.words.filter(word => {
+                    if (!word || !word.data || typeof word.data !== 'object') {
+                        console.error('Invalid word format:', word);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                console.log('Valid words count:', validWords.length);
+                return validWords.sort((a, b) => a.lesson - b.lesson);
             } catch (error) {
                 console.error('Error loading words:', error);
-                // 可以在这里添加一个空数组作为回退
-                return []; 
+                return [];
             }
         }
         
         // 修改initApp函数确保正确处理空数据情况
-        // 合并后的initApp函数
-        function initApp() {
-            const savedWords = localStorage.getItem('japaneseWords');
-            if (savedWords) {
-                wordsData = JSON.parse(savedWords);
-            }
-            setupDeleteButtons();
-            
-            loadWords().then(words => {
-                currentWords = words.concat(wordsData);
-                document.getElementById('next-btn').click();
-                if (currentWords.length === 0) {
-                    alert('没有加载到单词数据，请检查words.json文件');
+        async function initApp() {
+            try {
+                console.log('Starting app initialization...');
+                
+                // 加载词典数据
+                console.log('Loading dictionaries...');
+                dictionaries = await loadDictionaries();
+                console.log('Dictionaries loaded:', dictionaries);
+                populateDictionaryOptions();
+                
+                // 加载单词数据
+                console.log('Loading words...');
+                const words = await loadWords();
+                console.log('Words loaded:', words.length);
+                
+                // 合并本地存储的单词
+                const savedWords = localStorage.getItem('japaneseWords');
+                if (savedWords) {
+                    try {
+                        const parsedSavedWords = JSON.parse(savedWords);
+                        if (Array.isArray(parsedSavedWords)) {
+                            currentWords = words.concat(parsedSavedWords);
+                            console.log('Total words after merge:', currentWords.length);
+                        } else {
+                            console.error('Invalid saved words format:', parsedSavedWords);
+                            currentWords = words;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing saved words:', e);
+                        currentWords = words;
+                    }
+                } else {
+                    currentWords = words;
                 }
-            }).catch(error => {
-                console.error('初始化失败:', error);
-            });
+                
+                // 填充课程选项
+                populateLessonOptions(currentWords);
+                
+                // 初始化删除按钮
+                setupDeleteButtons();
+                
+                // 生成第一个问题
+                const question = generateQuestion(currentWords);
+                if (question) {
+                    renderQuestion(question);
+                } else {
+                    console.error('Failed to generate question');
+                    showToast('无法生成问题，请检查单词数据');
+                }
+                
+                if (currentWords.length === 0) {
+                    console.error('No words loaded');
+                    showToast('没有加载到单词数据，请检查words.json文件');
+                }
+            } catch (error) {
+                console.error('Error during app initialization:', error);
+                showToast('初始化应用时发生错误，请查看控制台获取详细信息');
+            }
         }
         
-        // 添加DOM加载完成监听
-        document.addEventListener('DOMContentLoaded', () => {
-            initApp();
-            setupDeleteButtons();
+        // 修改词典筛选器的变化处理函数
+        function handleDictionaryChange(event) {
+            const selectedDictionary = event.target.value;
+            currentSelectedDictionary = selectedDictionary;
             
-            // 添加全局键盘事件监听
-            document.addEventListener('keydown', (e) => {
-                // 检测Command+Enter(Mac)或Ctrl+Enter(Windows)
-                const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-                const isSkipShortcut = (isMac && e.metaKey && e.key === 'Enter') || 
-                                     (!isMac && e.ctrlKey && e.key === 'Enter');
-                
-                if (isSkipShortcut) {
-                    e.preventDefault();
-                    document.getElementById('next-btn').click();
+            // 同步更新两个模式下的词典筛选器
+            document.getElementById('quiz-dictionary-filter').value = selectedDictionary;
+            document.getElementById('word-list-dictionary-filter').value = selectedDictionary;
+            
+            // 根据词典选择状态启用/禁用课程筛选器
+            const lessonFilter = document.getElementById('quiz-lesson-filter');
+            const wordListLessonFilter = document.getElementById('word-list-lesson-filter');
+            
+            if (selectedDictionary === 'all') {
+                lessonFilter.disabled = true;
+                wordListLessonFilter.disabled = true;
+                lessonFilter.value = 'all';
+                wordListLessonFilter.value = 'all';
+                currentSelectedLesson = 'all';
+            } else {
+                lessonFilter.disabled = false;
+                wordListLessonFilter.disabled = false;
+            }
+            
+            // 更新课程选项
+            populateLessonOptions(currentWords);
+            
+            // 根据当前模式更新显示
+            if (document.getElementById('question-container').style.display !== 'none') {
+                // 答题模式下生成新问题
+                const question = generateQuestion(currentWords);
+                if (question) {
+                    renderQuestion(question);
                 }
-            });
+            } else {
+                // 单词库模式下更新单词列表
+                document.getElementById('word-list-lesson-filter').dispatchEvent(new Event('change'));
+            }
+        }
+
+        // 修改课程筛选器的变化处理函数
+        function handleLessonChange(event) {
+            const selectedLesson = event.target.value;
+            currentSelectedLesson = selectedLesson;
             
-            // 初始化两种模式下的课时筛选选项
-            loadWords().then(words => {
-                populateLessonOptions(words);
-            });
+            // 同步更新两个模式下的课程筛选器
+            document.getElementById('quiz-lesson-filter').value = selectedLesson;
+            document.getElementById('word-list-lesson-filter').value = selectedLesson;
+            
+            // 根据当前模式更新显示
+            if (document.getElementById('question-container').style.display !== 'none') {
+                // 答题模式下生成新问题
+                const question = generateQuestion(currentWords);
+                if (question) {
+                    renderQuestion(question);
+                }
+            } else {
+                // 单词库模式下更新单词列表
+                const selectedDictionary = document.getElementById('word-list-dictionary-filter').value;
+                const words = currentWords.filter(word => {
+                    if (selectedDictionary !== 'all' && word.dictionary !== selectedDictionary) {
+                        return false;
+                    }
+                    if (selectedLesson !== 'all' && word.lesson != selectedLesson) {
+                        return false;
+                    }
+                    return true;
+                });
+                
+                const tbody = document.getElementById('word-list-body');
+                tbody.innerHTML = '';
+                
+                words.forEach(word => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="border: 1px solid #ddd; padding: 8px; width: 80px; white-space: nowrap;">第${word.lesson}课</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;"><span class="part-of-speech-tag ${word.data['词性']}">${word.data['词性']}</span></td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">${highlightParticles(word.data['例句'])}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        // 修改DOM加载完成监听
+        document.addEventListener('DOMContentLoaded', () => {
+            // 确保只初始化一次
+            if (!window.appInitialized) {
+                window.appInitialized = true;
+                initApp();
+                setupDeleteButtons();
+                
+                // 添加全局键盘事件监听
+                document.addEventListener('keydown', (e) => {
+                    // 检测Command+Enter(Mac)或Ctrl+Enter(Windows)
+                    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+                    const isSkipShortcut = (isMac && e.metaKey && e.key === 'Enter') || 
+                                         (!isMac && e.ctrlKey && e.key === 'Enter');
+                    
+                    if (isSkipShortcut) {
+                        e.preventDefault();
+                        document.getElementById('next-btn').click();
+                    }
+                });
+                
+                // 初始化两种模式下的课时筛选选项
+                loadWords().then(words => {
+                    populateLessonOptions(words);
+                });
+
+                // 添加词典筛选器事件监听
+                document.getElementById('quiz-dictionary-filter').addEventListener('change', handleDictionaryChange);
+                document.getElementById('word-list-dictionary-filter').addEventListener('change', handleDictionaryChange);
+                
+                // 添加课程筛选器事件监听
+                document.getElementById('quiz-lesson-filter').addEventListener('change', handleLessonChange);
+                document.getElementById('word-list-lesson-filter').addEventListener('change', handleLessonChange);
+            }
         });
 
-        // 课时选项填充函数 - 提取为共享函数
-        function populateLessonOptions(words) {
-            const quizLessonFilter = document.getElementById('quiz-lesson-filter');
-            const lessonFilter = document.getElementById('lesson-filter');
-            const lessons = [...new Set(words.map(word => word.lesson))].sort((a, b) => a - b);
-            
-            // 清空已有选项（保留全部选项）
-            while (quizLessonFilter.options.length > 1) {
-                quizLessonFilter.remove(1);
-            }
-            while (lessonFilter.options.length > 1) {
-                lessonFilter.remove(1);
-            }
-            
-            // 添加课时选项到两个筛选器
-            lessons.forEach(lesson => {
-                // 答题模式筛选器
-                const quizOption = document.createElement('option');
-                quizOption.value = lesson;
-                quizOption.textContent = `第${lesson}课`;
-                quizLessonFilter.appendChild(quizOption);
-                
-                // 单词库模式筛选器
-                const libraryOption = document.createElement('option');
-                libraryOption.value = lesson;
-                libraryOption.textContent = `第${lesson}课`;
-                lessonFilter.appendChild(libraryOption);
-            });
-            
-            // 确保两个筛选器的值同步
-            quizLessonFilter.value = currentSelectedLesson;
-            lessonFilter.value = currentSelectedLesson;
-        }
-
-        // 生成随机问题
-        function generateQuestion(words) {
-            // 使用全局变量currentSelectedLesson代替直接从DOM获取
-            const selectedLesson = currentSelectedLesson;
-            const filteredWords = selectedLesson === 'all' 
-                ? words 
-                : words.filter(word => word.lesson == selectedLesson);
-            
-            if (filteredWords.length === 0) {
-                showToast('所选课程没有单词，请选择其他课程');
-                // 重置为全部课程
-                currentSelectedLesson = 'all';
-                document.getElementById('quiz-lesson-filter').value = 'all';
-                document.getElementById('lesson-filter').value = 'all';
-                return generateQuestion(words); // 回退到全部单词
-            }
-            
-            const randomWord = filteredWords[Math.floor(Math.random() * filteredWords.length)];
-            const selectedType = document.getElementById('question-type').value;
-            const type = selectedType === 'mixed' ? 
-                ['fillBlank', 'multipleChoice'][Math.floor(Math.random() * 2)] : 
-                selectedType;
-            
-            if (type === 'fillBlank') {
-                return {
-                    type: 'fillBlank',
-                    prompt: `请写出"${randomWord.data['中文']}"<span class="part-of-speech-tag ${randomWord.data['词性']}">${randomWord.data['词性']}</span>对应的日语假名或汉字是：`,
-                    answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
-                    word: randomWord
-                };
-            } else {
-                // 生成选择题
-                const options = [`${randomWord.data['假名']} (${randomWord.data['汉字']})`];
-                while (options.length < 4) {
-                    const randomWord = words[Math.floor(Math.random() * words.length)];
-                    const randomOption = `${randomWord.data['假名']} (${randomWord.data['汉字']})`;
-                    if (!options.includes(randomOption)) {
-                        options.push(randomOption);
-                    }
-                }
-                
-                // 打乱选项顺序
-                options.sort(() => Math.random() - 0.5);
-                
-                return {
-                    type: 'multipleChoice',
-                    prompt: `"${randomWord.data['中文']}"<span class="part-of-speech-tag ${randomWord.data['词性']}">${randomWord.data['词性']}</span>对应的日语假名或汉字是：`,
-                    options: options,
-                    answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
-                    word: randomWord
-                };
-            }
-        }
-
-        // 渲染问题
+        // 修改渲染问题函数
         function renderQuestion(question) {
-            console.log('Rendering question:', question); // 调试日志
+            console.log('Rendering question:', question);
             const container = document.getElementById('question-container');
             container.innerHTML = '';
             
@@ -865,13 +993,16 @@
             
             if (question.type === 'fillBlank') {
                 questionDiv.innerHTML += `
-                    <input type="text" id="user-answer" placeholder="请输入假名" autofocus autocomplete="off">
+                    <input type="text" id="user-answer" placeholder="请输入假名" autocomplete="off">
                     <button id="submit-btn">提交</button>
                 `;
-                // 确保输入框获得焦点
+                // 延迟设置焦点，确保DOM已完全加载
                 setTimeout(() => {
-                    document.getElementById('user-answer').focus();
-                }, 0);
+                    const input = document.getElementById('user-answer');
+                    if (input) {
+                        input.focus();
+                    }
+                }, 100);
             } else {
                 question.options.forEach((option, index) => {
                     questionDiv.innerHTML += `
@@ -886,10 +1017,13 @@
             
             container.appendChild(questionDiv);
             
-            document.getElementById('submit-btn').addEventListener('click', () => {
-                checkAnswer(question);
-            });
-            document.getElementById('submit-btn').textContent = 'Enter提交';
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    checkAnswer(question);
+                });
+                submitBtn.textContent = 'Enter提交';
+            }
         }
 
         // 检查答案
@@ -998,10 +1132,56 @@
 
         // 初始化应用
         let currentWords = [];
-        // 添加一个变量来跟踪当前选择的课时
         let currentSelectedLesson = 'all';
+        let currentSelectedDictionary = 'all';
+        let dictionaries = [];
         
-        // 模式切换
+        // 加载词典数据
+        async function loadDictionaries() {
+            try {
+                const response = await fetch('dictionaries.json');
+                if (!response.ok) {
+                    console.error('Failed to load dictionaries:', response.status, response.statusText);
+                    throw new Error('Failed to load dictionaries');
+                }
+                const data = await response.json();
+                console.log('Loaded dictionaries:', data);
+                return data.dictionaries || [];
+            } catch (error) {
+                console.error('Error loading dictionaries:', error);
+                return [];
+            }
+        }
+
+        // 填充词典选项
+        function populateDictionaryOptions() {
+            const dictionaryFilter = document.getElementById('quiz-dictionary-filter');
+            const wordListDictionaryFilter = document.getElementById('word-list-dictionary-filter');
+            
+            if (!dictionaryFilter || !wordListDictionaryFilter) {
+                console.error('Dictionary filters not found');
+                return;
+            }
+            
+            // 清空已有选项（保留全部选项）
+            while (dictionaryFilter.options.length > 1) {
+                dictionaryFilter.remove(1);
+            }
+            while (wordListDictionaryFilter.options.length > 1) {
+                wordListDictionaryFilter.remove(1);
+            }
+            
+            // 添加词典选项
+            dictionaries.forEach(dict => {
+                const option = document.createElement('option');
+                option.value = dict.id;
+                option.textContent = dict.name;
+                dictionaryFilter.appendChild(option.cloneNode(true));
+                wordListDictionaryFilter.appendChild(option);
+            });
+        }
+
+        // 修改模式切换事件处理
         document.getElementById('test-mode-btn').addEventListener('click', () => {
             document.getElementById('question-container').style.display = 'block';
             document.getElementById('input-container').style.display = 'none';
@@ -1013,8 +1193,31 @@
             document.getElementById('test-mode-btn').classList.add('active');
             document.getElementById('input-mode-btn').classList.remove('active');
             
-            // 设置答题模式下的课时筛选器与当前选择保持一致
-            document.getElementById('quiz-lesson-filter').value = currentSelectedLesson;
+            // 同步筛选器状态
+            const quizDictionaryFilter = document.getElementById('quiz-dictionary-filter');
+            const wordListDictionaryFilter = document.getElementById('word-list-dictionary-filter');
+            const quizLessonFilter = document.getElementById('quiz-lesson-filter');
+            const wordListLessonFilter = document.getElementById('word-list-lesson-filter');
+            
+            if (quizDictionaryFilter && wordListDictionaryFilter) {
+                quizDictionaryFilter.value = currentSelectedDictionary;
+                wordListDictionaryFilter.value = currentSelectedDictionary;
+            }
+            
+            if (quizLessonFilter && wordListLessonFilter) {
+                quizLessonFilter.value = currentSelectedLesson;
+                wordListLessonFilter.value = currentSelectedLesson;
+                
+                // 根据词典选择状态启用/禁用课程筛选器
+                quizLessonFilter.disabled = currentSelectedDictionary === 'all';
+                wordListLessonFilter.disabled = currentSelectedDictionary === 'all';
+            }
+            
+            // 生成新问题
+            const question = generateQuestion(currentWords);
+            if (question) {
+                renderQuestion(question);
+            }
         });
         
         document.getElementById('input-mode-btn').addEventListener('click', async () => {
@@ -1025,6 +1228,26 @@
             document.getElementById('input-mode-btn').classList.add('active');
             document.getElementById('test-mode-btn').classList.remove('active');
             
+            // 同步筛选器状态
+            const quizDictionaryFilter = document.getElementById('quiz-dictionary-filter');
+            const wordListDictionaryFilter = document.getElementById('word-list-dictionary-filter');
+            const quizLessonFilter = document.getElementById('quiz-lesson-filter');
+            const wordListLessonFilter = document.getElementById('word-list-lesson-filter');
+            
+            if (quizDictionaryFilter && wordListDictionaryFilter) {
+                quizDictionaryFilter.value = currentSelectedDictionary;
+                wordListDictionaryFilter.value = currentSelectedDictionary;
+            }
+            
+            if (quizLessonFilter && wordListLessonFilter) {
+                quizLessonFilter.value = currentSelectedLesson;
+                wordListLessonFilter.value = currentSelectedLesson;
+                
+                // 根据词典选择状态启用/禁用课程筛选器
+                quizLessonFilter.disabled = currentSelectedDictionary === 'all';
+                wordListLessonFilter.disabled = currentSelectedDictionary === 'all';
+            }
+            
             // 加载并显示单词列表
             const words = await loadWords();
             const tbody = document.getElementById('word-list-body');
@@ -1033,160 +1256,207 @@
             // 初始化删除按钮
             setupDeleteButtons();
             
-            // 使用全局函数填充课时选项
-            populateLessonOptions(words);
-            
-            // 课时筛选功能
-            document.getElementById('lesson-filter').addEventListener('change', async () => {
-                const selectedLesson = document.getElementById('lesson-filter').value;
-                // 更新当前选择的课时
-                currentSelectedLesson = selectedLesson;
-                const words = await loadWords();
-                const tbody = document.getElementById('word-list-body');
-                tbody.innerHTML = '';
-                
-                words.forEach(word => {
-                    if (selectedLesson === 'all' || word.lesson == selectedLesson) {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td style="border: 1px solid #ddd; padding: 8px; width: 80px; white-space: nowrap;">第${word.lesson}课</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
-                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;"><span class="part-of-speech-tag ${word.data['词性']}">${word.data['词性']}</span></td>
-                            <td style="border: 1px solid #ddd; padding: 8px;">${highlightParticles(word.data['例句'])}</td>
-                        `;
-                        tbody.appendChild(row);
-                    }
-                });
+            // 根据当前筛选条件显示单词列表
+            const filteredWords = words.filter(word => {
+                if (currentSelectedDictionary !== 'all' && word.dictionary !== currentSelectedDictionary) {
+                    return false;
+                }
+                if (currentSelectedLesson !== 'all' && word.lesson != currentSelectedLesson) {
+                    return false;
+                }
+                return true;
             });
             
-            // 初始加载全部单词
-            document.getElementById('lesson-filter').dispatchEvent(new Event('change'));
+            filteredWords.forEach(word => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="border: 1px solid #ddd; padding: 8px; width: 80px; white-space: nowrap;">第${word.lesson}课</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;"><span class="part-of-speech-tag ${word.data['词性']}">${word.data['词性']}</span></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${highlightParticles(word.data['例句'])}</td>
+                `;
+                tbody.appendChild(row);
+            });
         });
         
-        // 修改答题模式的课时筛选器事件处理
-        document.getElementById('quiz-lesson-filter').addEventListener('change', function() {
-            // 更新当前选择的课时
-            currentSelectedLesson = this.value;
-            // 同步更新单词库模式的课时筛选器
-            document.getElementById('lesson-filter').value = currentSelectedLesson;
-            // 如果有单词，则刷新题目
-            if (currentWords && currentWords.length > 0) {
-                document.getElementById('next-btn').click();
+        // 修改课程筛选器填充函数
+        function populateLessonOptions(words) {
+            const lessonFilter = document.getElementById('quiz-lesson-filter');
+            const wordListLessonFilter = document.getElementById('word-list-lesson-filter');
+            
+            if (!lessonFilter || !wordListLessonFilter) {
+                console.error('Lesson filters not found');
+                return;
             }
-        });
-        
-        document.getElementById('next-btn').addEventListener('click', async () => {
-            if (currentWords.length === 0) {
-                currentWords = await loadWords();
-                // 初始化课程筛选选项
-                const lessons = [...new Set(currentWords.map(word => word.lesson))].sort((a, b) => a - b);
-            currentWords.sort((a, b) => a.lesson - b.lesson);
-                const lessonFilter = document.getElementById('quiz-lesson-filter');
-                lessons.forEach(lesson => {
+            
+            // 清空已有选项（保留全部选项）
+            while (lessonFilter.options.length > 1) {
+                lessonFilter.remove(1);
+            }
+            while (wordListLessonFilter.options.length > 1) {
+                wordListLessonFilter.remove(1);
+            }
+            
+            if (!words || !Array.isArray(words)) {
+                console.error('Invalid words array:', words);
+                return;
+            }
+            
+            // 获取当前选择的词典
+            const selectedDictionary = currentSelectedDictionary;
+            
+            // 创建一个对象来存储每个课程对应的词典信息
+            const lessonDictionaryMap = {};
+            
+            // 遍历所有单词，收集课程和词典的对应关系
+            words.forEach(word => {
+                if (word.lesson) {
+                    if (!lessonDictionaryMap[word.lesson]) {
+                        lessonDictionaryMap[word.lesson] = new Set();
+                    }
+                    lessonDictionaryMap[word.lesson].add(word.dictionary);
+                }
+            });
+            
+            // 获取所有不重复的课程号，并根据当前选择的词典进行过滤
+            const lessons = [...new Set(words
+                .filter(word => {
+                    // 如果选择了特定词典，只显示该词典的课程
+                    if (selectedDictionary && selectedDictionary !== 'all') {
+                        return word.dictionary === selectedDictionary && word.lesson;
+                    }
+                    // 如果选择了"全部词典"，显示所有课程
+                    return word.lesson;
+                })
+                .map(word => word.lesson)
+            )].sort((a, b) => a - b);
+            
+            // 添加课程选项
+            lessons.forEach(lesson => {
+                if (lesson) {  // 确保课程号存在
                     const option = document.createElement('option');
                     option.value = lesson;
-                    option.textContent = `第${lesson}课`;
-                    lessonFilter.appendChild(option);
-                });
+                    
+                    // 获取该课程对应的词典列表
+                    const dictionaries = Array.from(lessonDictionaryMap[lesson] || []);
+                    const dictionaryNames = dictionaries.map(dictId => {
+                        const dict = dictionaries.find(d => d.id === dictId);
+                        return dict ? dict.name : dictId;
+                    });
+                    
+                    // 如果选择了特定词典，只显示课程号
+                    if (selectedDictionary && selectedDictionary !== 'all') {
+                        option.textContent = `第${lesson}课`;
+                    } else {
+                        // 如果选择了"全部词典"，显示课程号和对应的词典
+                        option.textContent = `第${lesson}课 (${dictionaryNames.join('、')})`;
+                    }
+                    
+                    lessonFilter.appendChild(option.cloneNode(true));
+                    wordListLessonFilter.appendChild(option);
+                }
+            });
+            
+            // 如果当前选择的课程不在新列表中，重置为"全部课程"
+            if (currentSelectedLesson && !lessons.includes(currentSelectedLesson)) {
+                currentSelectedLesson = 'all';
+                lessonFilter.value = 'all';
+                wordListLessonFilter.value = 'all';
             }
-            const question = generateQuestion(currentWords);
-            renderQuestion(question);
-        });
-        
-        document.getElementById('refresh-btn').addEventListener('click', async () => {
-            currentWords = await loadWords();
-            if (currentWords.length === 0) {
-                alert('没有加载到单词数据，请检查words.json文件');
+            
+            // 生成新的问题
+            const question = generateQuestion(words);
+            if (question) {
+                renderQuestion(question);
+            }
+        }
+
+        // 生成随机问题
+        function generateQuestion(words) {
+            if (!words || !Array.isArray(words) || words.length === 0) {
+                console.error('Invalid words array:', words);
+                return null;
+            }
+            
+            // 使用全局变量currentSelectedLesson代替直接从DOM获取
+            const selectedLesson = currentSelectedLesson;
+            const selectedDictionary = currentSelectedDictionary;
+            
+            let filteredWords = words.filter(word => {
+                if (!word || !word.data) {
+                    console.error('Invalid word format:', word);
+                    return false;
+                }
+                return true;
+            });
+            
+            // 应用词典筛选
+            if (selectedDictionary !== 'all') {
+                filteredWords = filteredWords.filter(word => word.dictionary === selectedDictionary);
+            }
+            
+            // 应用课程筛选
+            if (selectedLesson !== 'all') {
+                filteredWords = filteredWords.filter(word => word.lesson == selectedLesson);
+            }
+            
+            if (filteredWords.length === 0) {
+                showToast('所选词典或课程没有单词，请选择其他选项');
+                // 重置为全部选项
+                currentSelectedLesson = 'all';
+                currentSelectedDictionary = 'all';
+                document.getElementById('quiz-lesson-filter').value = 'all';
+                document.getElementById('quiz-dictionary-filter').value = 'all';
+                return generateQuestion(words);
+            }
+            
+            const randomWord = filteredWords[Math.floor(Math.random() * filteredWords.length)];
+            if (!randomWord || !randomWord.data) {
+                console.error('Invalid random word:', randomWord);
+                return null;
+            }
+            
+            const selectedType = document.getElementById('question-type').value;
+            const type = selectedType === 'mixed' ? 
+                ['fillBlank', 'multipleChoice'][Math.floor(Math.random() * 2)] : 
+                selectedType;
+            
+            if (type === 'fillBlank') {
+                return {
+                    type: 'fillBlank',
+                    prompt: `请写出"${randomWord.data['中文']}"<span class="part-of-speech-tag ${randomWord.data['词性']}">${randomWord.data['词性']}</span>对应的日语假名或汉字是：`,
+                    answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
+                    word: randomWord
+                };
             } else {
-                showToast(`成功加载 ${currentWords.length} 个单词`);
-                document.getElementById('next-btn').click();
-            }
-        });
-        
-        // 修改题目类型切换事件监听
-        document.getElementById('question-type').addEventListener('change', () => {
-            if (currentWords && currentWords.length > 0) {
-                document.getElementById('next-btn').click();
-            }
-        });
-        
-        // 启动应用
-        initApp();
-        
-        // 初始化应用时添加弹出窗口提示
-        document.getElementById('popup-window-btn').addEventListener('click', () => {
-            const windowFeatures = 'width=800,height=600,left=100,top=100';
-            window.open(window.location.href, '_blank', windowFeatures);
-            showToast('请允许浏览器弹出窗口');
-        });
-        
-        // 添加键盘事件监听
-        // 跟踪输入框焦点状态
-        let isInputFocused = false;
-        
-        // 监听输入框焦点变化
-        document.addEventListener('focusin', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                isInputFocused = true;
-            }
-        });
-        
-        document.addEventListener('focusout', () => {
-            isInputFocused = false;
-        });
-        
-        document.addEventListener('keydown', (e) => {
-            // 只在答题模式下处理快捷键
-            if(document.getElementById('question-container').style.display !== 'none') {
-                // Enter键多功能处理
-                if(e.key === 'Enter') {
-                    const feedback = document.querySelector('.feedback');
-                    if(feedback && feedback.classList.contains('correct')) {
-                        // 回答正确时，Enter键触发下一题
-                        document.getElementById('next-btn').click();
-                    } else if(document.getElementById('submit-btn')) {
-                        // 检查输入框是否有内容
-                        const input = document.getElementById('user-answer');
-                        if(!input || input.value.trim() !== '') {
-                            // 有内容时触发提交
-                            document.getElementById('submit-btn').click();
+                // 生成选择题
+                const options = [`${randomWord.data['假名']} (${randomWord.data['汉字']})`];
+                while (options.length < 4) {
+                    const randomWord = filteredWords[Math.floor(Math.random() * filteredWords.length)];
+                    if (randomWord && randomWord.data) {
+                        const randomOption = `${randomWord.data['假名']} (${randomWord.data['汉字']})`;
+                        if (!options.includes(randomOption)) {
+                            options.push(randomOption);
                         }
                     }
                 }
-                // 数字键1-4选择选项
-                if(e.key >= '1' && e.key <= '4' && document.querySelectorAll('.option').length > 0) {
-                    document.getElementById(`option-${parseInt(e.key)-1}`).checked = true;
-                }
+                
+                // 打乱选项顺序
+                options.sort(() => Math.random() - 0.5);
+                
+                return {
+                    type: 'multipleChoice',
+                    prompt: `"${randomWord.data['中文']}"<span class="part-of-speech-tag ${randomWord.data['词性']}">${randomWord.data['词性']}</span>对应的日语假名或汉字是：`,
+                    options: options,
+                    answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
+                    word: randomWord
+                };
             }
-        });
-        
-        // 显示快捷键提示
-        showToast('快捷键提示: Enter提交/下一题, 数字键1-4选择选项');
-        
-        // Toast通知函数
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.add('hide');
-                    setTimeout(() => {
-                        document.body.removeChild(toast);
-                    }, 400);
-                }, 2000);
-            });
         }
-        // 初始设置删除按钮
-        setupDeleteButtons();
-        // 默认选中答题模式
-        document.getElementById('test-mode-btn').classList.add('active');
-        
+
+        // 初始化删除按钮
         function setupDeleteButtons() {
             // 添加删除确认和执行逻辑
             document.querySelectorAll('.delete-btn').forEach(btn => {
@@ -1209,7 +1479,7 @@
         // 修改默认排序状态
         let currentSortField = 'lesson';
         let currentSortDirection = 'asc';
-        
+
         function sortTable(field) {
             const tbody = document.getElementById('word-list-body');
             const rows = Array.from(tbody.getElementsByTagName('tr'));
@@ -1250,7 +1520,7 @@
             // 重新插入排序后的行
             rows.forEach(row => tbody.appendChild(row));
         }
-        
+
         function updateSortIcons() {
             const headers = document.querySelectorAll('th');
             headers.forEach(header => {
@@ -1269,6 +1539,24 @@
                     currentIcon.textContent = currentSortDirection === 'asc' ? '↑' : '↓';
                 }
             }
+        }
+
+        // Toast通知函数
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.add('hide');
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 400);
+                }, 2000);
+            });
         }
     </script>
 </body>
