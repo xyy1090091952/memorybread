@@ -748,11 +748,11 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="color: var(--secondary-color); font-size: 1.5em;">单词库</h2>
                     <div style="display: flex; gap: 15px;">
-                        <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center;">
+                    <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center;">
                             <label style="font-weight: 600; margin-right: 10px;">词典筛选: </label>
                             <select id="word-list-dictionary-filter" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer;">
                                 <option value="all">全部词典</option>
-                            </select>
+                        </select>
                         </div>
                         <div style="padding: 8px 12px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center;">
                             <label style="font-weight: 600; margin-right: 10px;">课程筛选: </label>
@@ -823,7 +823,7 @@
                 return validWords.sort((a, b) => a.lesson - b.lesson);
             } catch (error) {
                 console.error('Error loading words:', error);
-                return [];
+                return []; 
             }
         }
         
@@ -844,8 +844,8 @@
                 console.log('Words loaded:', words.length);
                 
                 // 合并本地存储的单词
-                const savedWords = localStorage.getItem('japaneseWords');
-                if (savedWords) {
+            const savedWords = localStorage.getItem('japaneseWords');
+            if (savedWords) {
                     try {
                         const parsedSavedWords = JSON.parse(savedWords);
                         if (Array.isArray(parsedSavedWords)) {
@@ -867,8 +867,8 @@
                 populateLessonOptions(currentWords);
                 
                 // 初始化删除按钮
-                setupDeleteButtons();
-                
+            setupDeleteButtons();
+            
                 // 生成第一个问题
                 const question = generateQuestion(currentWords);
                 if (question) {
@@ -1108,6 +1108,7 @@
                     checkAnswer(question);
                 });
                 submitBtn.textContent = 'Enter提交';
+                submitBtn.style.backgroundColor = '';
             }
         }
 
@@ -1163,8 +1164,8 @@
             }
             
             const isCorrect = userAnswer && (userAnswer === question.answer || 
-                                   userAnswer === question.word.data['汉字'] || 
-                                   userAnswer === question.word.data['假名']);
+                   userAnswer === question.word.data['汉字'] || 
+                   userAnswer === question.word.data['假名']);
             
             const feedbackDiv = document.createElement('div');
             feedbackDiv.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
@@ -1195,13 +1196,24 @@
             const submitBtn = document.getElementById('submit-btn');
             if (submitBtn) {
                 if (isCorrect) {
+                    // 正确答案时，将按钮改为下一题
                     submitBtn.textContent = 'Enter下一题';
                     submitBtn.style.backgroundColor = '#4CAF50';
-                    submitBtn.onclick = () => document.getElementById('next-btn').click();
+                    submitBtn.onclick = () => {
+                        const nextQuestion = generateQuestion(currentWords);
+                        if (nextQuestion) {
+                            renderQuestion(nextQuestion);
+                        }
+                    };
                 } else {
+                    // 错误答案时，保持提交按钮状态
                     submitBtn.textContent = 'Enter提交';
                     submitBtn.style.backgroundColor = '';
-                    submitBtn.onclick = () => checkAnswer(question);
+                    // 移除之前的事件监听器，避免重复绑定
+                    submitBtn.replaceWith(submitBtn.cloneNode(true));
+                    // 重新获取新的按钮元素并绑定事件
+                    const newSubmitBtn = document.getElementById('submit-btn');
+                    newSubmitBtn.onclick = () => checkAnswer(question);
                 }
             }
         }
@@ -1352,19 +1364,19 @@
             });
             
             filteredWords.forEach(word => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td style="border: 1px solid #ddd; padding: 8px; width: 80px; white-space: nowrap;">第${word.lesson}课</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;"><span class="part-of-speech-tag ${word.data['词性']}">${word.data['词性']}</span></td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${highlightParticles(word.data['例句'])}</td>
-                `;
-                tbody.appendChild(row);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td style="border: 1px solid #ddd; padding: 8px; width: 80px; white-space: nowrap;">第${word.lesson}课</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${word.data['假名']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${word.data['汉字']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${word.data['中文']}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;"><span class="part-of-speech-tag ${word.data['词性']}">${word.data['词性']}</span></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${highlightParticles(word.data['例句'])}</td>
+                        `;
+                        tbody.appendChild(row);
+                });
             });
-        });
-        
+            
         // 修改课程筛选器填充函数
         function populateLessonOptions(words) {
             const lessonFilter = document.getElementById('quiz-lesson-filter');
@@ -1418,7 +1430,7 @@
             )].sort((a, b) => a - b);
             
             // 添加课程选项
-            lessons.forEach(lesson => {
+                lessons.forEach(lesson => {
                 if (lesson) {  // 确保课程号存在
                     const option = document.createElement('option');
                     option.value = lesson;
@@ -1433,7 +1445,7 @@
                     // 如果选择了特定词典，只显示课程号
                     if (selectedDictionary && selectedDictionary !== 'all') {
                         option.textContent = `第${lesson}课`;
-                    } else {
+            } else {
                         // 如果选择了"全部词典"，显示课程号和对应的词典
                         option.textContent = `第${lesson}课 (${dictionaryNames.join('、')})`;
                     }
@@ -1562,7 +1574,7 @@
         // 修改默认排序状态
         let currentSortField = 'lesson';
         let currentSortDirection = 'asc';
-
+        
         function sortTable(field) {
             const tbody = document.getElementById('word-list-body');
             const rows = Array.from(tbody.getElementsByTagName('tr'));
@@ -1603,7 +1615,7 @@
             // 重新插入排序后的行
             rows.forEach(row => tbody.appendChild(row));
         }
-
+        
         function updateSortIcons() {
             const headers = document.querySelectorAll('th');
             headers.forEach(header => {
