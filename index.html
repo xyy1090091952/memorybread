@@ -669,6 +669,36 @@
             min-width: 150px;
             width: 200px;
         }
+
+        /* 添加选项样式 */
+        .option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover {
+            background-color: var(--light-gray);
+            transform: translateY(-2px);
+        }
+        
+        .option.selected {
+            background-color: var(--light-gray);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .option label {
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -945,6 +975,40 @@
             }
         }
 
+        // 修改全局键盘事件监听
+        function handleKeyPress(e) {
+            // 检测Command+Enter(Mac)或Ctrl+Enter(Windows)
+            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            const isSkipShortcut = (isMac && e.metaKey && e.key === 'Enter') || 
+                                  (!isMac && e.ctrlKey && e.key === 'Enter');
+            
+            if (isSkipShortcut) {
+                e.preventDefault();
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn) {
+                    nextBtn.click();
+                }
+            }
+            
+            // 检测Enter键
+            if (e.key === 'Enter' && !isSkipShortcut) {
+                e.preventDefault();
+                const submitBtn = document.getElementById('submit-btn');
+                if (submitBtn) {
+                    submitBtn.click();
+                }
+            }
+            
+            // 检测数字键1-4
+            if (e.key >= '1' && e.key <= '4') {
+                const optionIndex = parseInt(e.key) - 1;
+                const option = document.querySelector(`input[name="option"][id="option-${optionIndex}"]`);
+                if (option) {
+                    option.checked = true;
+                }
+            }
+        }
+
         // 修改DOM加载完成监听
         document.addEventListener('DOMContentLoaded', () => {
             // 确保只初始化一次
@@ -953,18 +1017,19 @@
                 initApp();
                 setupDeleteButtons();
                 
+                // 添加下一题按钮事件监听
+                const nextBtn = document.getElementById('next-btn');
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        const question = generateQuestion(currentWords);
+                        if (question) {
+                            renderQuestion(question);
+                        }
+                    });
+                }
+                
                 // 添加全局键盘事件监听
-                document.addEventListener('keydown', (e) => {
-                    // 检测Command+Enter(Mac)或Ctrl+Enter(Windows)
-                    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-                    const isSkipShortcut = (isMac && e.metaKey && e.key === 'Enter') || 
-                                         (!isMac && e.ctrlKey && e.key === 'Enter');
-                    
-                    if (isSkipShortcut) {
-                        e.preventDefault();
-                        document.getElementById('next-btn').click();
-                    }
-                });
+                document.addEventListener('keydown', handleKeyPress);
                 
                 // 初始化两种模式下的课时筛选选项
                 loadWords().then(words => {
@@ -985,6 +1050,17 @@
         function renderQuestion(question) {
             console.log('Rendering question:', question);
             const container = document.getElementById('question-container');
+            
+            // 清理旧的事件监听器
+            const oldSubmitBtn = document.getElementById('submit-btn');
+            if (oldSubmitBtn) {
+                oldSubmitBtn.replaceWith(oldSubmitBtn.cloneNode(true));
+            }
+            
+            // 清理旧的反馈信息
+            const oldFeedbacks = document.querySelectorAll('.feedback');
+            oldFeedbacks.forEach(feedback => feedback.remove());
+            
             container.innerHTML = '';
             
             const questionDiv = document.createElement('div');
@@ -1006,7 +1082,7 @@
             } else {
                 question.options.forEach((option, index) => {
                     questionDiv.innerHTML += `
-                        <div class="option">
+                        <div class="option" data-index="${index}">
                             <input type="radio" name="option" id="option-${index}" value="${option}">
                             <label for="option-${index}"><span class="option-number">${index + 1}.</span> ${option}</label>
                         </div>
@@ -1017,12 +1093,39 @@
             
             container.appendChild(questionDiv);
             
+            // 使用事件委托处理选项点击
+            questionDiv.addEventListener('click', (e) => {
+                const optionDiv = e.target.closest('.option');
+                if (optionDiv) {
+                    const index = parseInt(optionDiv.dataset.index);
+                    selectOption(index);
+                }
+            });
+            
             const submitBtn = document.getElementById('submit-btn');
             if (submitBtn) {
                 submitBtn.addEventListener('click', () => {
                     checkAnswer(question);
                 });
                 submitBtn.textContent = 'Enter提交';
+            }
+        }
+
+        // 添加选项选择函数
+        function selectOption(index) {
+            const option = document.querySelector(`input[name="option"][id="option-${index}"]`);
+            if (option) {
+                option.checked = true;
+                // 添加选中效果
+                const optionDiv = option.closest('.option');
+                if (optionDiv) {
+                    // 移除其他选项的选中效果
+                    document.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // 添加当前选项的选中效果
+                    optionDiv.classList.add('selected');
+                }
             }
         }
 
@@ -1047,86 +1150,67 @@
             if (question.type === 'fillBlank') {
                 userAnswer = document.getElementById('user-answer').value.trim();
                 if (!userAnswer) {
-                    const feedbackDiv = document.createElement('div');
-                    feedbackDiv.className = 'feedback incorrect';
-                    feedbackDiv.innerHTML = `
-                        <div class="feedback-header">请填写答案</div>
-                    `;
-                    document.querySelector('.question-container').appendChild(feedbackDiv);
+                    showFeedback('incorrect', '请填写答案');
                     return;
                 }
-            } else {
+            } else if (question.type === 'multipleChoice') {
                 const selectedOption = document.querySelector('input[name="option"]:checked');
                 userAnswer = selectedOption ? selectedOption.value : null;
                 if (!userAnswer) {
-                    const feedbackDiv = document.createElement('div');
-                    feedbackDiv.className = 'feedback incorrect';
-                    feedbackDiv.innerHTML = `
-                        <div class="feedback-header">请选择一个选项</div>
-                    `;
-                    document.querySelector('.question-container').appendChild(feedbackDiv);
+                    showFeedback('incorrect', '请选择一个选项');
                     return;
                 }
             }
             
+            const isCorrect = userAnswer && (userAnswer === question.answer || 
+                                   userAnswer === question.word.data['汉字'] || 
+                                   userAnswer === question.word.data['假名']);
+            
             const feedbackDiv = document.createElement('div');
-            feedbackDiv.className = 'feedback';
+            feedbackDiv.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
             
-            if (userAnswer && (userAnswer === question.answer || userAnswer === question.word.data['汉字'] || userAnswer === question.word.data['假名'])) {
-                feedbackDiv.className += ' correct';
-                feedbackDiv.innerHTML = `
-                    <div class="feedback-header">回答正确</div>
-                    <div class="word-details">
-                        <div class="word-details-title">单词详情</div>
-                        <div class="word-details-content">
-                            <div class="word-details-item">
-                                <span class="word-details-label">假名：</span>
-                                <span>${question.word.data['假名']}</span>
-                            </div>
-                            <div class="word-details-item">
-                                <span class="word-details-label">汉字：</span>
-                                <span>${question.word.data['汉字']}</span>
-                            </div>
-                            <div class="word-details-item">
-                                <span class="word-details-label">例句：</span>
-                                <span>${highlightParticles(question.word.data['例句'])}</span>
-                            </div>
+            feedbackDiv.innerHTML = `
+                <div class="feedback-header">${isCorrect ? '回答正确' : '回答错误'}</div>
+                <div class="word-details">
+                    <div class="word-details-title">单词详情</div>
+                    <div class="word-details-content">
+                        <div class="word-details-item">
+                            <span class="word-details-label">假名：</span>
+                            <span>${question.word.data['假名']}</span>
+                        </div>
+                        <div class="word-details-item">
+                            <span class="word-details-label">汉字：</span>
+                            <span>${question.word.data['汉字']}</span>
+                        </div>
+                        <div class="word-details-item">
+                            <span class="word-details-label">例句：</span>
+                            <span>${highlightParticles(question.word.data['例句'])}</span>
                         </div>
                     </div>
-                `;
-                document.getElementById('submit-btn').textContent = 'Enter下一题';
-                document.getElementById('submit-btn').style.backgroundColor = '#4CAF50';
-                
-                // 重新绑定点击事件
-                const submitBtn = document.getElementById('submit-btn');
-                submitBtn.onclick = function() {
-                    document.getElementById('next-btn').click();
-                };
-            } else {
-                feedbackDiv.className += ' incorrect';
-                feedbackDiv.innerHTML = `
-                    <div class="feedback-header">回答错误</div>
-                    <div class="word-details">
-                        <div class="word-details-title">单词详情</div>
-                        <div class="word-details-content">
-                            <div class="word-details-item">
-                                <span class="word-details-label">假名：</span>
-                                <span>${question.word.data['假名']}</span>
-                            </div>
-                            <div class="word-details-item">
-                                <span class="word-details-label">汉字：</span>
-                                <span>${question.word.data['汉字']}</span>
-                            </div>
-                            <div class="word-details-item">
-                                <span class="word-details-label">例句：</span>
-                                <span>${highlightParticles(question.word.data['例句'])}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('submit-btn').textContent = 'Enter提交';
+                </div>
+            `;
+            
+            document.querySelector('.question-container').appendChild(feedbackDiv);
+            
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                if (isCorrect) {
+                    submitBtn.textContent = 'Enter下一题';
+                    submitBtn.style.backgroundColor = '#4CAF50';
+                    submitBtn.onclick = () => document.getElementById('next-btn').click();
+                } else {
+                    submitBtn.textContent = 'Enter提交';
+                    submitBtn.style.backgroundColor = '';
+                    submitBtn.onclick = () => checkAnswer(question);
+                }
             }
-            
+        }
+
+        // 添加辅助函数来显示反馈
+        function showFeedback(type, message) {
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = `feedback ${type}`;
+            feedbackDiv.innerHTML = `<div class="feedback-header">${message}</div>`;
             document.querySelector('.question-container').appendChild(feedbackDiv);
         }
 
@@ -1380,31 +1464,26 @@
                 return null;
             }
             
-            // 使用全局变量currentSelectedLesson代替直接从DOM获取
             const selectedLesson = currentSelectedLesson;
             const selectedDictionary = currentSelectedDictionary;
             
-            let filteredWords = words.filter(word => {
-                if (!word || !word.data) {
-                    console.error('Invalid word format:', word);
-                    return false;
-                }
-                return true;
+            // 使用Set来优化过滤和去重
+            let filteredWords = new Set();
+            
+            // 应用筛选条件
+            words.forEach(word => {
+                if (!word || !word.data) return;
+                
+                if (selectedDictionary !== 'all' && word.dictionary !== selectedDictionary) return;
+                if (selectedLesson !== 'all' && word.lesson != selectedLesson) return;
+                
+                filteredWords.add(word);
             });
             
-            // 应用词典筛选
-            if (selectedDictionary !== 'all') {
-                filteredWords = filteredWords.filter(word => word.dictionary === selectedDictionary);
-            }
-            
-            // 应用课程筛选
-            if (selectedLesson !== 'all') {
-                filteredWords = filteredWords.filter(word => word.lesson == selectedLesson);
-            }
+            filteredWords = Array.from(filteredWords);
             
             if (filteredWords.length === 0) {
                 showToast('所选词典或课程没有单词，请选择其他选项');
-                // 重置为全部选项
                 currentSelectedLesson = 'all';
                 currentSelectedDictionary = 'all';
                 document.getElementById('quiz-lesson-filter').value = 'all';
@@ -1430,26 +1509,30 @@
                     answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
                     word: randomWord
                 };
-            } else {
-                // 生成选择题
-                const options = [`${randomWord.data['假名']} (${randomWord.data['汉字']})`];
-                while (options.length < 4) {
+            } else if (type === 'multipleChoice') {
+                // 使用Set来优化选项去重
+                const options = new Set([`${randomWord.data['假名']} (${randomWord.data['汉字']})`]);
+                
+                // 生成其他选项
+                while (options.size < 4) {
                     const randomWord = filteredWords[Math.floor(Math.random() * filteredWords.length)];
                     if (randomWord && randomWord.data) {
                         const randomOption = `${randomWord.data['假名']} (${randomWord.data['汉字']})`;
-                        if (!options.includes(randomOption)) {
-                            options.push(randomOption);
-                        }
+                        options.add(randomOption);
                     }
                 }
                 
-                // 打乱选项顺序
-                options.sort(() => Math.random() - 0.5);
+                // 转换为数组并打乱顺序
+                const optionsArray = Array.from(options);
+                for (let i = optionsArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [optionsArray[i], optionsArray[j]] = [optionsArray[j], optionsArray[i]];
+                }
                 
                 return {
                     type: 'multipleChoice',
                     prompt: `"${randomWord.data['中文']}"<span class="part-of-speech-tag ${randomWord.data['词性']}">${randomWord.data['词性']}</span>对应的日语假名或汉字是：`,
-                    options: options,
+                    options: optionsArray,
                     answer: `${randomWord.data['假名']} (${randomWord.data['汉字']})`,
                     word: randomWord
                 };
@@ -1558,6 +1641,56 @@
                 }, 2000);
             });
         }
+
+        document.getElementById('refresh-btn').addEventListener('click', async () => {
+            try {
+                // 重新加载词典数据
+                dictionaries = await loadDictionaries();
+                populateDictionaryOptions();
+                
+                // 重新加载单词数据
+                const words = await loadWords();
+                const wordCount = words.length;
+                currentWords = words;
+                
+                // 更新课程选项
+                populateLessonOptions(currentWords);
+                
+                // 根据当前模式更新显示
+                if (document.getElementById('question-container').style.display !== 'none') {
+                    const question = generateQuestion(currentWords);
+                    if (question) {
+                        renderQuestion(question);
+                    }
+                } else {
+                    document.getElementById('input-mode-btn').click();
+                }
+                
+                showToast(`词库刷新成功，共加载${wordCount}个单词`);
+            } catch (error) {
+                console.error('Error refreshing words:', error);
+                showToast('刷新词库失败，请查看控制台获取详细信息');
+            }
+        });
+
+        document.getElementById('popup-window-btn').addEventListener('click', () => {
+            const width = 800;
+            const height = 600;
+            const left = (window.screen.width - width) / 2;
+            const top = (window.screen.height - height) / 2;
+            
+            const popup = window.open(
+                window.location.href,
+                'Memorybread',
+                `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+            );
+            
+            if (popup) {
+                popup.focus();
+            } else {
+                showToast('请允许弹出窗口以使用此功能');
+            }
+        });
     </script>
 </body>
 </html>
