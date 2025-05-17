@@ -261,17 +261,11 @@
             border-radius: 8px;
             background: white;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             transition: all 0.3s ease;
             min-width: 150px;
             width: 200px;
             box-sizing: border-box;
-            padding-right: 32px; /* 增加右侧内边距 */
-            appearance: none; /* 移除默认下拉箭头 */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8.825L1.175 4 2.05 3.125 6 7.075 9.95 3.125 10.825 4z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center; /* 调整箭头位置 */
-            background-size: 12px;
         }
 
         select:focus {
@@ -542,27 +536,28 @@
 
         /* 优化交互效果 */
         .mode-btn {
-    background-color: var(--primary-color);
-    width: 120px;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow);
-    position: relative;
-}
-.mode-btn:hover {
-    background-color: #1266DA;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-.mode-btn.active {
-    background-color: var(--secondary-color);
-    font-weight: 600;
-}
+            position: relative;
+            overflow: hidden;
+            width: 120px;
+        }
 
+        .mode-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .mode-btn:hover::after {
+            width: 200%;
+            height: 200%;
+        }
 
         .mode-btn.active {
             animation: scaleIn 0.2s ease-out;
@@ -666,15 +661,10 @@
         }
 
         select:disabled {
-        background-color: #f5f5f5;
-        cursor: not-allowed;
-        opacity: 0.7;
-        width: 200px;
-        }
-
-        /* 仅深色模式下禁用select背景色 */
-        [data-theme="dark"] select:disabled {
-    background-color: #333 !important;
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.7;
+            width: 200px;
         }
 
         /* 筛选器容器样式 */
@@ -813,7 +803,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: var(--bg-color);
-            padding: 30px 0;
+            padding: 30px 40px;
             border-radius: 12px;
             width: 80%;
             max-width: 600px;
@@ -822,16 +812,22 @@
             font-size: 14px;
         }
 
-        #wrong-questions-modal .modal-content > div:first-child {
-            padding: 0 30px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        #wrong-questions-modal .modal-content button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            width: auto;
+            box-shadow: none;
         }
 
-        #wrong-questions-list {
-            padding: 0 30px;
+        #wrong-questions-modal .modal-content button:hover {
+            background: none;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.8;
         }
 
         #wrong-questions-list ul {
@@ -841,7 +837,7 @@
         }
 
         #wrong-questions-list li {
-            padding: 0;
+            padding: 10px;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 10px;
         }
@@ -923,17 +919,29 @@
         </div>
     </section>
 
-    <main>
-        <section id="question-container">
-            <div id="quiz-stats">
-                <div class="stats-container">
-                    <div>当前答题<span id="total-questions">0</span>个,</div>
-                    <div>正确<span id="correct-answers">0</span>个,</div>
-                    <div>正确率<span id="accuracy-rate">0%</span></div>
-                </div>
-                <button id="view-wrong-questions">查看错题</button>
+    <!-- 添加答题统计和错题记录 -->
+    <div id="quiz-stats">
+        <div class="stats-container">
+            <div>当前答题<span id="total-questions">0</span>个,</div>
+            <div>正确<span id="correct-answers">0</span>个,</div>
+            <div>正确率<span id="accuracy-rate">0%</span></div>
+        </div>
+        <button id="view-wrong-questions">查看错题</button>
+    </div>
+
+    <!-- 错题弹窗 -->
+    <div id="wrong-questions-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--text-color); margin: 0;">错题记录</h3>
+                <button id="close-modal" style="background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 20px;">×</button>
             </div>
-        </section>
+            <div id="wrong-questions-list"></div>
+        </div>
+    </div>
+
+    <main>
+        <section id="question-container"></section>
         
         <section id="input-container" style="display:none;">
             <div id="word-list" style="margin-bottom: 20px;">
@@ -972,17 +980,6 @@
             </div>
         </section>
     </main>
-
-    <!-- 错题弹窗 -->
-    <div id="wrong-questions-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: var(--text-color); margin: 0;">错题记录</h3>
-                <button id="close-modal" style="background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 20px;">×</button>
-            </div>
-            <div id="wrong-questions-list"></div>
-        </div>
-    </div>
 
     <footer style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
         <div id="next-btn-container" style="margin-bottom: 20px;">
@@ -1191,7 +1188,6 @@
                 if (nextBtn) {
                     nextBtn.click();
                 }
-                return;
             }
             
             // 检测Enter键
@@ -1201,7 +1197,6 @@
                 if (submitBtn) {
                     submitBtn.click();
                 }
-                return;
             }
             
             // 检测数字键1-4
@@ -1275,9 +1270,6 @@
             console.log('Rendering question:', question);
             const container = document.getElementById('question-container');
             
-            // 保存quiz-stats
-            const quizStats = document.getElementById('quiz-stats');
-            
             // 清理旧的事件监听器
             const oldSubmitBtn = document.getElementById('submit-btn');
             if (oldSubmitBtn) {
@@ -1288,11 +1280,7 @@
             const oldFeedbacks = document.querySelectorAll('.feedback');
             oldFeedbacks.forEach(feedback => feedback.remove());
             
-            // 清空问题容器，但保留quiz-stats
             container.innerHTML = '';
-            if (quizStats) {
-                container.appendChild(quizStats);
-            }
             
             const questionDiv = document.createElement('div');
             questionDiv.className = 'question-container';
@@ -1383,19 +1371,13 @@
 
         // 更新答题统计显示
         function updateQuizStats() {
-            const totalQuestionsEl = document.getElementById('total-questions');
-            const correctAnswersEl = document.getElementById('correct-answers');
-            const accuracyRateEl = document.getElementById('accuracy-rate');
-            
-            // 只在元素存在时更新
-            if (totalQuestionsEl && correctAnswersEl && accuracyRateEl) {
-                totalQuestionsEl.textContent = quizStats.totalQuestions;
-                correctAnswersEl.textContent = quizStats.correctAnswers;
-                const accuracyRate = quizStats.totalQuestions > 0 
-                    ? Math.round((quizStats.correctAnswers / quizStats.totalQuestions) * 100) 
-                    : 0;
-                accuracyRateEl.textContent = `${accuracyRate}%`;
-            }
+            document.getElementById('total-questions').textContent = quizStats.totalQuestions;
+            document.getElementById('correct-answers').textContent = quizStats.correctAnswers;
+            document.getElementById('wrong-answers').textContent = quizStats.wrongAnswers;
+            const accuracyRate = quizStats.totalQuestions > 0 
+                ? Math.round((quizStats.correctAnswers / quizStats.totalQuestions) * 100) 
+                : 0;
+            document.getElementById('accuracy-rate').textContent = `${accuracyRate}%`;
         }
 
         // 更新错题列表显示
@@ -1508,29 +1490,33 @@
             
             document.querySelector('.question-container').appendChild(feedbackDiv);
             
-            // 答对后直接跳转到下一题
+            // 答对后自动跳转到下一题
             if (isCorrect) {
-                // 立即生成并渲染下一题
-                const nextQuestion = generateQuestion(currentWords);
-                if (nextQuestion) {
-                    renderQuestion(nextQuestion);
-                }
-                return;
+                setTimeout(() => {
+                    const nextQuestion = generateQuestion(currentWords);
+                    if (nextQuestion) {
+                        renderQuestion(nextQuestion);
+                    }
+                }, 800); // 0.8秒延时，方便用户查看反馈
             }
             
-            // 只处理错误答案的情况
-            if (!isCorrect) {
-                const submitBtn = document.getElementById('submit-btn');
-                if (submitBtn) {
+            const submitBtn = document.getElementById('submit-btn');
+            if (submitBtn) {
+                if (isCorrect) {
+                    submitBtn.textContent = 'Enter下一题';
+                    submitBtn.style.backgroundColor = '#4CAF50';
+                    submitBtn.onclick = () => {
+                        const nextQuestion = generateQuestion(currentWords);
+                        if (nextQuestion) {
+                            renderQuestion(nextQuestion);
+                        }
+                    };
+                } else {
                     submitBtn.textContent = 'Enter提交';
                     submitBtn.style.backgroundColor = '';
-                    
-                    // 创建一个新按钮以清除所有事件监听器
-                    const newSubmitBtn = submitBtn.cloneNode(true);
-                    submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
-                    
-                    // 为新按钮添加点击事件
-                    newSubmitBtn.addEventListener('click', () => checkAnswer(question));
+                    submitBtn.replaceWith(submitBtn.cloneNode(true));
+                    const newSubmitBtn = document.getElementById('submit-btn');
+                    newSubmitBtn.onclick = () => checkAnswer(question);
                 }
             }
         }
@@ -1605,7 +1591,6 @@
             document.getElementById('question-type-toggle').style.display = 'block';
             document.getElementById('test-mode-btn').classList.add('active');
             document.getElementById('input-mode-btn').classList.remove('active');
-            document.getElementById('quiz-stats').style.display = 'flex'; // 显示答题统计
             
             // 同步筛选器状态
             const quizDictionaryFilter = document.getElementById('quiz-dictionary-filter');
@@ -1650,7 +1635,6 @@
             document.getElementById('question-type-toggle').style.display = 'none';
             document.getElementById('input-mode-btn').classList.add('active');
             document.getElementById('test-mode-btn').classList.remove('active');
-            document.getElementById('quiz-stats').style.display = 'none'; // 隐藏答题统计
             
             // 同步筛选器状态
             const quizDictionaryFilter = document.getElementById('quiz-dictionary-filter');

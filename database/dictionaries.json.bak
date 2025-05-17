@@ -1,0 +1,17 @@
+{
+    "dictionaries": [
+        {
+            "id": "everyones_japanese",
+            "name": "everyone's Japanese",
+            "description": "大家的日语",
+            "words_files": ["everyones_japanese/words*.json"]
+        },
+        {
+            "id": "liangs_class",
+            "name": "liang's class",
+            "description": "梁老师的课程",
+            "words_files": ["liangs_class/words*.json"]
+        }
+       
+    ]
+} 
